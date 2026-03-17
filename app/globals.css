@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brainlet-black: #000000;
+  --brainlet-white: #FFFFFF;
+  --brainlet-blue: #0000FF;
+  --brainlet-red: #FF0000;
+}
+
+body {
+  background-color: var(--brainlet-white);
+  color: var(--brainlet-black);
+  font-family: 'Fira Code', monospace;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Video background */
+.brainlet-video-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  opacity: 0.15;
+}
+
+/* 3D Box Styling - from brainletcoin.fun */
+.brainlet-box {
+  background: var(--brainlet-white);
+  border: 6px solid var(--brainlet-black);
+  box-shadow: 10px 10px 0px var(--brainlet-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.brainlet-box:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 15px 15px 0px var(--brainlet-black);
+}
+
+/* Crisp shadow (no blur) variant */
+.brainlet-crisp-shadow {
+  box-shadow: 6px 6px 0px var(--brainlet-black);
+}
+
+/* Deep shadow variant */
+.brainlet-deep-shadow {
+  box-shadow: 12px 12px 50px rgba(0, 0, 0, 0.4);
+}
+
+/* Text styling with outline/shadow */
+.brainlet-text-outline {
+  -webkit-text-stroke: 3px var(--brainlet-black);
+  color: var(--brainlet-white);
+  filter: drop-shadow(6px 6px 0px var(--brainlet-black));
+}
+
+.brainlet-text-fill {
+  color: var(--brainlet-black);
+  -webkit-text-stroke: 2px var(--brainlet-black);
+  filter: drop-shadow(4px 4px 0px var(--brainlet-black));
+}
+
+/* Font families */
+@layer utilities {
+  .font-brainlet {
+    font-family: 'Luckiest Guy', cursive;
+  }
+  .font-comic {
+    font-family: 'Comic Neue', cursive, sans-serif;
+  }
+  .font-handwritten {
+    font-family: 'Gochi Hand', cursive;
+  }
+  .font-bangers {
+    font-family: 'Bangers', cursive;
+  }
+  .font-mono {
+    font-family: 'Fira Code', monospace;
+  }
+  .font-courier {
+    font-family: 'Courier New', monospace;
+  }
+
+  .border-3 {
+    border-width: 3px;
+  }
+  .border-6 {
+    border-width: 6px;
+  }
+}
