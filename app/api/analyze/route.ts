@@ -219,10 +219,11 @@ REMEMBER: ALL 12 FIELDS MUST BE PRESENT. If you cannot determine a field, use "U
     if (jsonText.startsWith('{') && jsonText.endsWith('}')) {
       // Good
     } else {
-      // Try to extract JSON object
-      const jsonMatch = jsonText.match(/\{.*\}/s);
-      if (jsonMatch) {
-        jsonText = jsonMatch[0];
+      // Try to extract JSON object - find first { and last }
+      const firstBrace = jsonText.indexOf('{');
+      const lastBrace = jsonText.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        jsonText = jsonText.substring(firstBrace, lastBrace + 1);
       } else {
         console.error('[Gemini] No JSON object found in response');
         return null;

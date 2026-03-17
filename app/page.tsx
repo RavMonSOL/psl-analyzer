@@ -3,8 +3,8 @@
 import { useState, useRef } from 'react';
 import ImageUpload from '@/components/ImageUpload';
 import FacialOverlay from '@/components/FacialOverlay';
-import TerminalOutput from '@/components/TerminalOutput';
 import ResultsCard from '@/components/ResultsCard';
+import ScanResultsCard from '@/components/ScanResultsCard';
 
 interface AnalysisResult {
   score: number;
@@ -52,6 +52,11 @@ export default function Home() {
     }
   };
 
+  const reset = () => {
+    setImage(null);
+    setAnalysis(null);
+  };
+
   return (
     <div className="min-h-screen p-4 relative">
       <header className="max-w-4xl mx-auto mb-8 brainlet-box p-6 bg-white relative overflow-visible">
@@ -73,7 +78,10 @@ export default function Home() {
         {!image ? (
           <ImageUpload onUpload={handleImageUpload} />
         ) : analysis ? (
-          <ResultsCard result={analysis} imageSrc={image} onReset={() => { setImage(null); setAnalysis(null); }} />
+          <>
+            <ResultsCard result={analysis} imageSrc={image} onReset={reset} />
+            <ScanResultsCard result={analysis} />
+          </>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="brainlet-box p-4 bg-white">

@@ -1,6 +1,6 @@
 'use client';
 
-export interface AnalysisResult {
+interface AnalysisResult {
   score: number;
   category: string;
   subTier: string;
@@ -59,9 +59,21 @@ export default function ResultsCard({ result, imageSrc, onReset }: ResultsCardPr
         </h2>
         
         <div className="space-y-4 font-mono text-sm">
-          <div className="flex justify-between border-b-2 border-black pb-2">
-            <span className="font-bold">SCORE:</span>
-            <span className="text-xl">{result.score.toFixed(2)}</span>
+          {/* Score with bar */}
+          <div className="border-b-2 border-black pb-2">
+            <div className="flex justify-between mb-2">
+              <span className="font-bold">SCORE:</span>
+              <span className="text-xl">{result.score.toFixed(2)}</span>
+            </div>
+            <div className="h-6 bg-black border-3 border-black relative">
+              <div 
+                className="h-full bg-brainlet-blue transition-all duration-500"
+                style={{ width: `${(result.score / 7.9) * 100}%` }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
+                {result.category.toUpperCase()}
+              </div>
+            </div>
           </div>
           
           <div className="flex justify-between border-b-2 border-black pb-2">
