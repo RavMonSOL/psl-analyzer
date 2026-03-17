@@ -7,9 +7,9 @@ interface AnalysisResult {
   category: string;
   subTier: string;
   details: string;
-  strengths?: string;
-  weaknesses?: string;
-  improvements?: string;
+  strengths?: string | string[];
+  weaknesses?: string | string[];
+  improvements?: string | string[];
 }
 
 interface TerminalOutputProps {
@@ -37,13 +37,21 @@ function wrapText(text: string, maxWidth: number): string[] {
   return lines;
 }
 
+// Helper to normalize field to string
+function normalizeField(value: string | string[] | undefined): string {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.join(', ');
+  return String(value);
+}
+
 export default function TerminalOutput({ result }: TerminalOutputProps) {
   const [displayText, setDisplayText] = useState('');
   
   const boxWidth = 54; // inner width of the box (between borders)
   
   // Build the terminal output with proper wrapping
-  let lines: string[] = [];
+  const lines: string[] = [];
   
   // Header
   lines.push('╔══════════════════════════════════════════╗');
@@ -85,33 +93,40 @@ export default function TerminalOutput({ result }: TerminalOutputProps) {
   lines.push('└──────────────────────────────────────────────────────────┘');
   lines.push('');
   
-  // Analysis Report if any fields exist
-  if (result.strengths || result.weaknesses || result.improvements) {
+  // Analysis Report
+  const hasStrengths = result.strengths !== undefined && result.strengths !== '';
+  const hasWeaknesses = result.weaknesses !== undefined && result.weaknesses !== '';
+  const hasImprovements = result.improvements !== undefined && result.improvements !== '';
+  
+  if (hasStrengths || hasWeaknesses || hasImprovements) {
     lines.push('┌─ ANALYSIS REPORT ─────────────────────────────────────────┐');
     lines.push('│                                                            │');
     
-    if (result.strengths && typeof result.strengths === 'string') {
+    if (hasStrengths) {
       lines.push('│  STRENGTHS:');
-      const strengthLines = wrapText(result.strengths, boxWidth - 4);
+      const strengthText = normalizeField(result.strengths);
+      const strengthLines = wrapText(strengthText, boxWidth - 4);
       for (const line of strengthLines) {
         lines.push(`│    ${line.padEnd(60)} │`);
       }
       lines.push('│                                                            │');
     }
     
-    if (result.weaknesses && typeof result.weaknesses === 'string') {
+    if (hasWeaknesses) {
       lines.push('│  WEAKNESSES:');
-      const weaknessLines = wrapText(result.weaknesses, boxWidth - 4);
+      const weaknessText = normalizeField(result.weaknesses);
+      const weaknessLines = wrapText(weaknessText, boxWidth - 4);
       for (const line of weaknessLines) {
         lines.push(`│    ${line.padEnd(60)} │`);
       }
       lines.push('│                                                            │');
     }
     
-    if (result.improvements && typeof result.improvements === 'string') {
+    if (hasImprovements) {
       lines.push('│  IMPROVEMENTS:');
-      const improvementLines = wrapText(result.improvements, boxWidth - 4);
-      for (const line of improvementLines) {
+      const improvementsText = normalizeField(result.improvements);
+      const improvementsLines = wrapText(improvementsText, boxWidth - 4);
+      for (const line of improvementsLines) {
         lines.push(`│    ${line.padEnd(60)} │`);
       }
       lines.push('│                                                            │');
