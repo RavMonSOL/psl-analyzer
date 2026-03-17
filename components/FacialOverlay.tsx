@@ -33,33 +33,7 @@ const FacialOverlay = forwardRef<HTMLCanvasElement, FacialOverlayProps>(
         canvas.width = width;
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
-
-        // Draw RED biometric overlay lines
-        ctx.strokeStyle = '#FF0000';
-        ctx.lineWidth = 3;
-
-        // Eye alignment line (horizontal across eyes)
-        const eyeY = height * 0.42;
-        ctx.beginPath();
-        ctx.moveTo(width * 0.2, eyeY);
-        ctx.lineTo(width * 0.8, eyeY);
-        ctx.stroke();
-
-        // Jaw width line
-        const jawY = height * 0.78;
-        ctx.beginPath();
-        ctx.moveTo(width * 0.2, jawY);
-        ctx.lineTo(width * 0.8, jawY);
-        ctx.stroke();
-
-        // Midface ratio vertical center
-        const centerX = width / 2;
-        ctx.beginPath();
-        ctx.moveTo(centerX, height * 0.25);
-        ctx.lineTo(centerX, height * 0.85);
-        ctx.stroke();
-
-        // No text labels - clean biometric overlay
+        // No overlay - just the image
       };
       img.src = imageSrc;
     }, [imageSrc, ref]);
