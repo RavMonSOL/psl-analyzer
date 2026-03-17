@@ -1,74 +1,81 @@
-# PSL Brainlet Analyzer
+# Solana PSL Analyzer
 
-A brutalist, MS Paint-style facial analysis web app that scores faces on the PSL (Physical Socket Level) scale from 1.0 to 7.9.
+A brutalist, brainletcoin.fun-style facial analysis web app that scores faces on the PSL (Physical Socket Level) scale from **0.5 to 9.9**. Built with Next.js 14, Tailwind CSS, and Google Gemini 2.5 Flash AI.
+
+**Live Demo:** https://psl-analyzer.vercel.app
 
 ## Features
 
 - **Image Upload**: Drag & drop or click to upload facial images (PNG, JPG, WEBP)
-- **Facial Overlay**: Canvas-based red alignment lines showing eye, jaw, and midface markers
-- **AI-Powered Scoring**: Uses Gemini 1.5 Flash to analyze facial features against the PSL scale
-- **Terminal Output**: Hacker-style typewriter animation in a black box with lime-green text
-- **Brainlet Aesthetic**: Bold "Luckiest Guy" headers, Comic Neue body, Gochi Hand accents, 3px hard borders
+- **Results Card**: Displays score with animated loading bar, category, sub-tier, and detailed metrics
+- **Scan Results Card**: Clean terminal-style summary with strengths, weaknesses, improvements, and metric analysis bars
+- **AI-Powered Scoring**: Uses Gemini 2.5 Flash to analyze facial features and return comprehensive results
+- **Brainlet Aesthetic**: White background, 3-6px hard black borders, drop shadows, bold fonts (Luckiest Guy, Fira Code), video background
+- **Round Image Frame**: Uploaded face displayed in a circular frame with border
+
+## Scoring System (0.5 - 9.9)
+
+| Category | Score Range | Description |
+|----------|-------------|-------------|
+| Subhuman | < 0.5 | Extremely undesirable, deemed considerably unattractive by society at large |
+| Sub 5 | 0.5 - 3.3 | Generally unattractive to society at large |
+| Normie/Becky | 3.4 - 6.2 | Ranging from below average to slightly above average attractiveness; majority of people |
+| Chadlite/Stacylite | 6.3 - 8.5 | Attractive by societal standards |
+| Chad/Stacy | 8.6 - 9.3 | Upper echelons of attractiveness; highly attractive facial features |
+| Adamlite/Evelite | 9.4 - 9.6 | Near-perfect level of physical attractiveness |
+| True Adam/True Eve | 9.7 - 9.9 | Pinnacle of attractiveness; idealized, symmetrical, genetically superior; largely unattainable |
+
+## AI Analysis Fields
+
+Gemini returns the following data for each image:
+- **PSL Score** (0.5 - 9.9)
+- **Category & Sub-Tier**
+- **Details** - one-sentence description
+- **Strengths** - key attractive features
+- **Weaknesses** - areas for improvement
+- **Improvements** - actionable suggestions
+- **Mindset** - psychological classification
+- **Strategy** - recommended social/physical strategy
+- **Jawline Type** - e.g., Mogger, Chiseled, Square, Oval
+- **Breathing** - Nose Breather, Mouth Breather, Mixed
+- **Appeal Level** - celebrity comparable or appeal level
 
 ## Tech Stack
 
 - **Frontend**: Next.js 14 (App Router), React 18, Tailwind CSS
-- **AI**: Google Gemini API (via REST)
+- **AI**: Google Gemini 2.5 Flash via `@google/generative-ai` SDK
 - **Deployment**: Vercel
+- **Design**: Brainletcoin.fun inspired (brutalist, hard borders, drop shadows)
 
 ## Environment Variables
 
-The app requires a Google Gemini API key for real scoring. Without it, the app falls back to a mock scoring engine (based on image dimensions).
-
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `GOOGLE_API_KEY` | Yes (for real scoring) | Your Gemini API key from Google AI Studio |
-| `GEMINI_MODEL` | No | Model ID to use (default: `gemini-1.5-flash-latest`) |
+| `GOOGLE_AI_STUDIO_KEY` | Yes (for real scoring) | Your Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey) |
 
-### Setting Env Vars on Vercel
+### Setting Up Locally
 
-```bash
-# Add via CLI
-vercel env add GOOGLE_API_KEY production
-# Enter your API key
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy `.env.local.example` to `.env.local` and add your Gemini API key:
+   ```bash
+   GOOGLE_AI_STUDIO_KEY=your_key_here
+   ```
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+5. Open [http://localhost:3000](http://localhost:3000)
 
-vercel env add GEMINI_MODEL production
-# Enter model ID (optional)
-```
+### Deploying to Vercel
 
-Or use the Vercel dashboard: Project Settings → Environment Variables.
-
-## Local Development
-
-1. Clone the repo
-2. Install dependencies: `npm install`
-3. Copy `.env.local.example` to `.env.local` and fill in `GOOGLE_API_KEY`
-4. Run dev server: `npm run dev`
-5. Open http://localhost:3000
-
-## PSL Scoring System
-
-The app uses the master PSL scoring guide:
-
-| Category | Score Range | Sub-Tiers |
-|----------|-------------|-----------|
-| Subhuman | < 1.3 | Low Subhuman (<0.5), High Subhuman (0.8-1.3) |
-| Sub 5 | 1.4 - 2.7 | LTN-/LTB-, LTN/LTB, LTN+/LTB+ |
-| Normie | 2.8 - 5.0 | MTN-/MTB-, MTN/MTB, MTN+/MTB+ |
-| High Tier | 5.1 - 5.9 | HTN-/HTB-, HTN/HTB, HTN+/HTB+ |
-| Lite | 6.0 - 6.8 | Low CL/SL, CL/SL, High CL/SL |
-| Elite (Chad) | 6.9 - 7.4 | Low Chad/Stacy, Chad/Stacy, High Chad/Stacy |
-| Pinnacle | 7.5 - 7.9 | Adamlite/Evelite, True Adam/True Eve |
-
-## Design Spec
-
-- **Background**: Pure white (#FFFFFF)
-- **Borders**: 3px solid black, 0 border radius
-- **Accent Colors**: Electric Blue (#0000FF), Warning Red (#FF0000)
-- **Header Font**: Luckiest Guy (Google Font)
-- **Body Font**: Comic Neue
-- **Handwritten**: Gochi Hand
-- **Code/Terminal**: Fira Code
+1. Push to GitHub
+2. Create a new project on Vercel
+3. Add environment variable `GOOGLE_AI_STUDIO_KEY` in Vercel dashboard
+4. Deploy
 
 ## Project Structure
 
@@ -77,24 +84,69 @@ psl-analyzer/
 ├── app/
 │   ├── api/
 │   │   └── analyze/
-│   │       └── route.ts   # Gemini API endpoint
+│   │       └── route.ts       # Gemini API endpoint
 │   ├── globals.css
 │   ├── layout.tsx
-│   └── page.tsx
+│   └── page.tsx               # Main page component
 ├── components/
-│   ├── FacialOverlay.tsx
+│   ├── FacialOverlay.tsx      # Canvas-based image display (no overlay)
 │   ├── ImageUpload.tsx
-│   └── TerminalOutput.tsx
+│   ├── ResultsCard.tsx        # Main results display with score bar
+│   ├── ScanResultsCard.tsx    # Terminal-style summary card
+│   └── TerminalOutput.tsx    # Legacy terminal output (deprecated)
+├── public/
+│   ├── grok-video-90b41809...mp4  # Background video
+│   └── ... (other assets)
 ├── tailwind.config.ts
-└── package.json
+├── package.json
+└── README.md
 ```
+
+## API Integration
+
+The `/api/analyze` endpoint accepts a base64-encoded image and returns JSON:
+
+```json
+{
+  "score": 6.5,
+  "category": "Chadlite",
+  "subTier": "Mid Chadlite",
+  "details": "Strong jawline and symmetrical features place this individual firmly in the Chadlite tier.",
+  "strengths": "Strong bone structure, high facial symmetry, masculine proportions",
+  "weaknesses": "Slight skin texture, minor forehead-to-jaw ratio deviation",
+  "improvements": "Maintain grooming, focus on skin hydration",
+  "mindset": "Confident",
+  "strategy": "Social Dominance",
+  "jawlineType": "Chiseled",
+  "breathing": "Nose Breather",
+  "appealLevel": "Chris Evans",
+  "timestamp": "2025-03-17T14:06:00.000Z"
+}
+```
+
+If the Gemini API is unavailable or the key is missing, the endpoint falls back to a mock scoring engine based on image dimensions.
+
+## Design Specifications
+
+- **Background**: Pure white (#FFFFFF)
+- **Borders**: 3px and 6px solid black (#000000)
+- **Drop Shadows**: Hard offset shadows (no blur) for 3D effect
+- **Accent Colors**: Electric Blue (#0000FF), Terminal Green (#00FF00)
+- **Fonts**:
+  - Headers: Luckiest Guy
+  - Body: Comic Neue
+  - Code/Terminal: Fira Code
+- **Video Background**: grok-video (autoplay, muted, loop, low opacity)
 
 ## Notes
 
-- Images are converted to Base64 and sent directly to Gemini (no server storage)
-- The facial overlay is drawn on HTML5 Canvas client-side
-- For production, ensure your Gemini API key has sufficient quota
+- Images are sent as base64 to Gemini; they are not stored on the server
+- The app uses a deterministic mock scoring fallback when no API key is configured
+- All borders are sharp (no radius) to maintain the brainlet aesthetic
+- The score bar animates from left to right on card load
 
 ## Credits
 
-Built for the Brainletcoin aesthetic. Based on the PSL scoring system.
+Built for the Brainletcoin aesthetic. PSL scoring system based on community standards.
+
+**License**: MIT
