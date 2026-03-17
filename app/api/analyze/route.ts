@@ -97,7 +97,20 @@ function mockScoreFromBase64(base64: string): number {
   return Math.min(Math.max(baseScore, 1.0), 7.9);
 }
 
-async function callGeminiAPI(base64Image: string): Promise<{ score: number; category: string; subTier: string; details: string; strengths?: string; weaknesses?: string; improvements?: string } | null> {
+async function callGeminiAPI(base64Image: string): Promise<{ 
+  score: number; 
+  category: string; 
+  subTier: string; 
+  details: string; 
+  strengths?: string; 
+  weaknesses?: string; 
+  improvements?: string;
+  mindset?: string;
+  strategy?: string;
+  jawlineType?: string;
+  breathing?: string;
+  appealLevel?: string;
+} | null> {
   const apiKey = process.env.GOOGLE_AI_STUDIO_KEY;
   if (!apiKey) {
     console.error('[Gemini] API key not configured');
@@ -130,26 +143,62 @@ Scoring dimensions (weighted):
 - Sexual Dimorphism
 - Memorable Features
 
-Instructions:
+Additional fields to determine based on the face:
+- Mindset: (e.g., "Confident", "Reserved", "Assertive", "Analytical")
+- Strategy: (e.g., "Social Dominance", "Intellectual Appeal", "Aesthetic Optimization")
+- Jawline Type: (e.g., "Mogger", "Chiseled", "Soft", "Square", "Oval")
+- Breathing: (e.g., "Nose Breather", "Mouth Breather", "Mixed")
+- Appeal Level: (e.g., "Brad Pitt", "George Clooney", "Tom Hardy", "Chris Evans", "Jordan Barrett", "David Gandy", or other celebrity comparables)
+
+INSTRUCTIONS (CRITICAL):
 1. Examine the face objectively using established attractiveness metrics.
 2. Choose the EXACT score within the appropriate range (one decimal place).
 3. Determine category and sub-tier from the score.
 4. Write a 1-sentence detail that matches the sub-tier's tone.
-5. Also provide: strengths, weaknesses, improvement suggestions.
+5. Provide strengths, weaknesses, and improvement suggestions as separate fields.
+6. Determine the additional fields (mindset, strategy, jawlineType, breathing, appealLevel) based on facial analysis.
 
-Respond ONLY with valid JSON (no markdown fences) in this exact format:
+RESPONSE FORMAT RULES:
+- Respond ONLY with valid JSON.
+- No markdown fences, no extra text.
+- ALL FIELDS ARE MANDATORY. Do not omit any.
+
+JSON SCHEMA (follow exactly):
 {
   "score": <number between 1.0 and 7.9>,
-  "category": "<one of: Subhuman, Sub 5, Normie, High Tier, Lite, Elite, Pinnacle>",
-  "subTier": "<exact sub-tier label from the guide>",
-  "details": "<concise description>",
-  "strengths": "<brief strengths list>",
-  "weaknesses": "<brief weaknesses list>",
-  "improvements": "<brief improvement suggestions>"
-}`;
+  "category": "<Subhuman | Sub 5 | Normie | High Tier | Lite | Elite | Pinnacle>",
+  "subTier": "<exact sub-tier label from the PSL guide>",
+  "details": "<concise one-sentence description>",
+  "strengths": "<brief strengths list, 2-4 items>",
+  "weaknesses": "<brief weaknesses list, 2-4 items>",
+  "improvements": "<brief actionable suggestions>",
+  "mindset": "<mindset classification>",
+  "strategy": "<recommended strategy>",
+  "jawlineType": "<jawline classification>",
+  "breathing": "<breathing pattern>",
+  "appealLevel": "<celebrity comparable or appeal level>"
+}
+
+EXAMPLE (do not copy, just format):
+{
+  "score": 6.5,
+  "category": "Lite",
+  "subTier": "CL/SL",
+  "details": "Strong jawline and symmetrical features place this individual in Chadlite territory.",
+  "strengths": "Strong bone structure, high facial symmetry, masculine proportions",
+  "weaknesses": "Slight skin texture, minor forehead-to-jaw ratio deviation",
+  "improvements": "Maintain grooming, focus on skin hydration",
+  "mindset": "Confident",
+  "strategy": "Social Dominance",
+  "jawlineType": "Chiseled",
+  "breathing": "Nose Breather",
+  "appealLevel": "Chris Evans"
+}
+
+REMEMBER: ALL 12 FIELDS MUST BE PRESENT. If you cannot determine a field, use "Unclear" or "Unable to determine" but DO NOT OMIT IT.`;
 
   try {
-    console.log('[Gemini] Starting analysis with model: gemini-2.0-flash');
+    console.log('[Gemini] Starting analysis with model: gemini-2.5-flash');
     
     const imagePart = {
       inlineData: {
@@ -165,12 +214,35 @@ Respond ONLY with valid JSON (no markdown fences) in this exact format:
     console.log('[Gemini] Raw response:', text.substring(0, 500));
     
     // Clean up response
-    const jsonText = text.replace(/^```json\n?|\n?```$/g, '').trim();
+    let jsonText = text.replace(/^```json\n?|\n?```$/g, '').trim();
+    // If response starts with { and ends with }, assume it's JSON
+    if (jsonText.startsWith('{') && jsonText.endsWith('}')) {
+      // Good
+    } else {
+      // Try to extract JSON object
+      const jsonMatch = jsonText.match(/\{.*\}/s);
+      if (jsonMatch) {
+        jsonText = jsonMatch[0];
+      } else {
+        console.error('[Gemini] No JSON object found in response');
+        return null;
+      }
+    }
+    
     const parsed = JSON.parse(jsonText);
     
     if (typeof parsed.score !== 'number') {
       console.error('[Gemini] Invalid score in response:', parsed);
       return null;
+    }
+    
+    // Ensure all required fields exist (Gemini might still omit, but we've emphasized)
+    const requiredFields = ['category', 'subTier', 'details', 'strengths', 'weaknesses', 'improvements', 'mindset', 'strategy', 'jawlineType', 'breathing', 'appealLevel'];
+    for (const field of requiredFields) {
+      if (!(field in parsed)) {
+        console.warn(`[Gemini] Missing field '${field}', will set to default`);
+        (parsed as any)[field] = 'Unable to determine';
+      }
     }
     
     return parsed;
@@ -207,13 +279,26 @@ export async function POST(request: Request) {
     // Fallback to mock if no real result
     if (!result) {
       const score = mockScoreFromBase64(image);
+      const categoryData = getCategory(score);
       result = {
         score,
-        ...getCategory(score),
+        ...categoryData,
         strengths: 'Mock analysis - no API key',
         weaknesses: 'Mock analysis - no API key',
-        improvements: 'Set GOOGLE_AI_STUDIO_KEY for real AI scoring'
+        improvements: 'Set GOOGLE_AI_STUDIO_KEY for real AI scoring',
+        mindset: 'Unknown (mock)',
+        strategy: 'Unknown (mock)',
+        jawlineType: 'Unknown (mock)',
+        breathing: 'Unknown (mock)',
+        appealLevel: 'Unknown (mock)'
       };
+    } else {
+      // Ensure all new fields exist (should be present due to prompt, but safety net)
+      if (!result.mindset) result.mindset = 'Unable to determine';
+      if (!result.strategy) result.strategy = 'Unable to determine';
+      if (!result.jawlineType) result.jawlineType = 'Unable to determine';
+      if (!result.breathing) result.breathing = 'Unable to determine';
+      if (!result.appealLevel) result.appealLevel = 'Unable to determine';
     }
 
     return NextResponse.json({
