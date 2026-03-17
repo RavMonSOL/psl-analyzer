@@ -2,76 +2,128 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const PSL_SCORING_GUIDE = `
-CATEGORY           PSL SCORE RANGE       SUB-TIER LABELS
-Subhuman          Below 1.3             <0.5: Low Subhuman
-                                        0.8-1.3: High Subhuman
-Sub 5             1.4 - 2.7             1.4-1.8: LTN-/LTB-
-                                        1.9-2.3: LTN/LTB
-                                        2.4-2.7: LTN+/LTB+
-Normie            2.8 - 5.0             2.8-3.2: MTN-/MTB-
-                                        3.3-4.5: MTN/MTB
-                                        4.6-5.0: MTN+/MTB+
-High Tier         5.1 - 5.9             5.1-5.3: HTN-/HTB-
-                                        5.4-5.6: HTN/HTB
-                                        5.7-5.9: HTN+/HTB+
-Lite              6.0 - 6.8             6.0-6.3: Low CL/SL
-                                        6.4-6.5: CL/SL
-                                        6.6-6.8: High CL/SL
-Elite (Chad)      6.9 - 7.4             6.9-7.0: Low Chad/Stacy
-                                        7.1-7.2: Chad/Stacy
-                                        7.3-7.4: High Chad/High Stacy
-Pinnacle          7.5 - 7.9             7.5-7.7: Adamlite/Evelite
-                                        7.8-7.9: True Adam/True Eve
+CATEGORY (SCALE 0.5 - 9.9)
+
+Subhuman          < 0.5               Extremely undesirable, deemed considerably unattractive by society at large.
+Sub 5             0.5 - 3.3           Generally unattractive to society at large.
+Normie/Becky      3.4 - 6.2           Ranging from below average attractiveness to slightly above average attractiveness. The majority of people fall within this range.
+Chadlite/Stacylite 6.3 - 8.5           Attractive by societal standards.
+Chad/Stacy        8.6 - 9.3           Upper echelons of attractiveness in society. Highly attractive facial features and a high physical score.
+Adamlite/Evelite  9.4 - 9.6           Near-perfect level of physical attractiveness.
+True Adam/True Eve 9.7 - 9.9          Pinnacle of attractiveness with idealized features such as symmetrical and genetically superior bone structure. Largely unattainable.
 `;
 
 function getCategory(score: number): { category: string; subTier: string; details: string } {
-  if (score < 1.3) {
+  if (score < 0.5) {
     return {
       category: 'Subhuman',
-      subTier: score < 0.5 ? 'Low Subhuman' : 'High Subhuman',
-      details: 'Facial congruence below acceptable thresholds. Significant structural deviations detected.'
+      subTier: 'Extremely Low',
+      details: 'Extremely undesirable, deemed considerably unattractive by society at large.'
     };
-  } else if (score >= 1.4 && score <= 2.7) {
-    const subTier = score <= 1.8 ? 'LTN-/LTB-' : score <= 2.3 ? 'LTN/LTB' : 'LTN+/LTB+';
+  } else if (score >= 0.5 && score <= 3.3) {
+    // Sub 5 tier
+    if (score < 1.4) {
+      return {
+        category: 'Sub 5',
+        subTier: 'Low Sub 5',
+        details: 'Generally unattractive to society at large. Requires substantial aesthetic intervention.'
+      };
+    } else if (score < 2.4) {
+      return {
+        category: 'Sub 5',
+        subTier: 'Mid Sub 5',
+        details: 'Generally unattractive to society at large. Some redeeming features present.'
+      };
+    } else {
+      return {
+        category: 'Sub 5',
+        subTier: 'High Sub 5',
+        details: 'Generally unattractive to society at large. Approaching normie threshold.'
+      };
+    }
+  } else if (score >= 3.4 && score <= 6.2) {
+    // Normie/Becky tier
+    if (score < 4.1) {
+      return {
+        category: 'Normie',
+        subTier: 'Below Average',
+        details: 'Ranging from below average attractiveness to slightly above average. The majority of people fall within this range.'
+      };
+    } else if (score < 5.2) {
+      return {
+        category: 'Normie',
+        subTier: 'Average',
+        details: 'Ranging from below average attractiveness to slightly above average. The majority of people fall within this range.'
+      };
+    } else {
+      return {
+        category: 'Normie',
+        subTier: 'Above Average',
+        details: 'Ranging from below average attractiveness to slightly above average. The majority of people fall within this range.'
+      };
+    }
+  } else if (score >= 6.3 && score <= 8.5) {
+    // Chadlite/Stacylite tier
+    if (score < 7.1) {
+      return {
+        category: 'Chadlite',
+        subTier: 'Low Chadlite',
+        details: 'Attractive by societal standards. Solid bone structure and good proportions.'
+      };
+    } else if (score < 7.8) {
+      return {
+        category: 'Chadlite',
+        subTier: 'Mid Chadlite',
+        details: 'Attractive by societal standards. Strong facial features and good symmetry.'
+      };
+    } else {
+      return {
+        category: 'Chadlite',
+        subTier: 'High Chadlite',
+        details: 'Attractive by societal standards. Near-elite bone structure and excellent proportions.'
+      };
+    }
+  } else if (score >= 8.6 && score <= 9.3) {
+    // Chad/Stacy tier
+    if (score < 8.9) {
+      return {
+        category: 'Chad',
+        subTier: 'Low Chad',
+        details: 'Upper echelons of attractiveness in society. Highly attractive facial features and a high physical score.'
+      };
+    } else if (score < 9.1) {
+      return {
+        category: 'Chad',
+        subTier: 'Mid Chad',
+        details: 'Upper echelons of attractiveness in society. Highly attractive facial features and a high physical score.'
+      };
+    } else {
+      return {
+        category: 'Chad',
+        subTier: 'High Chad',
+        details: 'Upper echelons of attractiveness in society. Highly attractive facial features and a high physical score.'
+      };
+    }
+  } else if (score >= 9.4 && score <= 9.6) {
+    // Adamlite/Evelite tier
     return {
-      category: 'Sub 5',
-      subTier,
-      details: subTier.includes('+') ? 'Approaching normie threshold with minor optimizations.' : 'Requires substantial aesthetic intervention.'
+      category: 'Adamlite',
+      subTier: 'Adamlite',
+      details: 'Near-perfect level of physical attractiveness. Exceptional bone structure and harmony.'
     };
-  } else if (score >= 2.8 && score <= 5.0) {
-    const subTier = score <= 3.2 ? 'MTN-/MTB-' : score <= 4.5 ? 'MTN/MTB' : 'MTN+/MTB+';
+  } else if (score >= 9.7) {
+    // True Adam/True Eve
     return {
-      category: 'Normie',
-      subTier,
-      details: subTier.includes('+') ? 'Above-average facial harmony. Decent bone structure.' : 'Average population range. Functional but not striking.'
-    };
-  } else if (score >= 5.1 && score <= 5.9) {
-    const subTier = score <= 5.3 ? 'HTN-/HTB-' : score <= 5.6 ? 'HTN/HTB' : 'HTN+/HTB+';
-    return {
-      category: 'High Tier',
-      subTier,
-      details: subTier.includes('+') ? 'Strong aesthetic indicators. Near elite territory.' : 'Attractive with minor asymmetries.'
-    };
-  } else if (score >= 6.0 && score <= 6.8) {
-    const subTier = score <= 6.3 ? 'Low CL/SL' : score <= 6.5 ? 'CL/SL' : 'High CL/SL';
-    return {
-      category: 'Lite',
-      subTier,
-      details: 'Chadlite bone structure. Excellent jawline-to-forehead ratio.'
-    };
-  } else if (score >= 6.9 && score <= 7.4) {
-    const subTier = score <= 7.0 ? 'Low Chad/Stacy' : score <= 7.2 ? 'Chad/Stacy' : 'High Chad/High Stacy';
-    return {
-      category: 'Elite',
-      subTier,
-      details: subTier.includes('High') ? 'Top 0.1% facial symmetry. Elite genetics manifest.' : 'Clear Chad/Stacy indicators. Superior canthal tilt.'
+      category: 'True Adam',
+      subTier: 'True Adam',
+      details: 'Pinnacle of attractiveness with idealized features such as symmetrical and genetically superior bone structure. Largely unattainable.'
     };
   } else {
-    const subTier = score <= 7.7 ? 'Adamlite/Evelite' : 'True Adam/True Eve';
+    // Fallback for any score between 6.3-8.5 that didn't match? Actually we covered all.
     return {
-      category: 'Pinnacle',
-      subTier,
-      details: 'Near-flawless biometrics. Pinnacle of human aesthetic convergence.'
+      category: 'Chadlite',
+      subTier: 'Mid Chadlite',
+      details: 'Attractive by societal standards.'
     };
   }
 }
@@ -92,9 +144,10 @@ function mockScoreFromBase64(base64: string): number {
   const seed = width * height;
   const randomness = Math.sin(seed) * 10000;
   const fractional = randomness - Math.floor(randomness);
-  const baseScore = 2.0 + fractional * 5.5;
+  // Generate score between 0.5 and 9.9
+  const baseScore = 0.5 + fractional * 9.4;
 
-  return Math.min(Math.max(baseScore, 1.0), 7.9);
+  return Math.min(Math.max(baseScore, 0.5), 9.9);
 }
 
 async function callGeminiAPI(base64Image: string): Promise<{ 
@@ -128,7 +181,7 @@ async function callGeminiAPI(base64Image: string): Promise<{
   const base64Data = base64Image.substring(commaIndex + 1);
   const mimeType = header.includes('image/') ? header.split(';')[0].split(':')[1] || 'image/jpeg' : 'image/jpeg';
 
-  const prompt = `You are a PSL (Physical Socket Level) scoring engine. Analyze the provided facial image with extreme scrutiny and assign a score from 1.0 to 7.9.
+  const prompt = `You are a PSL (Physical Socket Level) scoring engine. Analyze the provided facial image with extreme scrutiny and assign a score from 0.5 to 9.9.
 
 PSL Scoring Guide:
 ${PSL_SCORING_GUIDE}
@@ -165,9 +218,9 @@ RESPONSE FORMAT RULES:
 
 JSON SCHEMA (follow exactly):
 {
-  "score": <number between 1.0 and 7.9>,
-  "category": "<Subhuman | Sub 5 | Normie | High Tier | Lite | Elite | Pinnacle>",
-  "subTier": "<exact sub-tier label from the PSL guide>",
+  "score": <number between 0.5 and 9.9>,
+  "category": "<Subhuman | Sub 5 | Normie | Chadlite | Chad | Adamlite | True Adam>",
+  "subTier": "<specific sub-tier classification>",
   "details": "<concise one-sentence description>",
   "strengths": "<brief strengths list, 2-4 items>",
   "weaknesses": "<brief weaknesses list, 2-4 items>",
@@ -182,9 +235,9 @@ JSON SCHEMA (follow exactly):
 EXAMPLE (do not copy, just format):
 {
   "score": 6.5,
-  "category": "Lite",
-  "subTier": "CL/SL",
-  "details": "Strong jawline and symmetrical features place this individual in Chadlite territory.",
+  "category": "Chadlite",
+  "subTier": "Mid Chadlite",
+  "details": "Strong jawline and symmetrical features place this individual firmly in the Chadlite tier.",
   "strengths": "Strong bone structure, high facial symmetry, masculine proportions",
   "weaknesses": "Slight skin texture, minor forehead-to-jaw ratio deviation",
   "improvements": "Maintain grooming, focus on skin hydration",
@@ -237,7 +290,7 @@ REMEMBER: ALL 12 FIELDS MUST BE PRESENT. If you cannot determine a field, use "U
       return null;
     }
     
-    // Ensure all required fields exist (Gemini might still omit, but we've emphasized)
+    // Ensure all required fields exist
     const requiredFields = ['category', 'subTier', 'details', 'strengths', 'weaknesses', 'improvements', 'mindset', 'strategy', 'jawlineType', 'breathing', 'appealLevel'];
     for (const field of requiredFields) {
       if (!(field in parsed)) {
@@ -294,7 +347,7 @@ export async function POST(request: Request) {
         appealLevel: 'Unknown (mock)'
       };
     } else {
-      // Ensure all new fields exist (should be present due to prompt, but safety net)
+      // Ensure all new fields exist
       if (!result.mindset) result.mindset = 'Unable to determine';
       if (!result.strategy) result.strategy = 'Unable to determine';
       if (!result.jawlineType) result.jawlineType = 'Unable to determine';

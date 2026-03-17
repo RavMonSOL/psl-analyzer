@@ -68,7 +68,7 @@ export default function ResultsCard({ result, imageSrc, onReset }: ResultsCardPr
             <div className="h-6 bg-black border-3 border-black relative">
               <div 
                 className="h-full bg-brainlet-blue transition-all duration-500"
-                style={{ width: `${(result.score / 7.9) * 100}%` }}
+                style={{ width: `${(result.score / 9.9) * 100}%` }}
               />
               <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
                 {result.category.toUpperCase()}

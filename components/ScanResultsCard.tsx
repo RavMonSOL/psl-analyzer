@@ -20,9 +20,6 @@ interface ScanResultsCardProps {
 }
 
 export default function ScanResultsCard({ result }: ScanResultsCardProps) {
-  // Convert score to 1-10 scale for bars
-  const scoreScale = ((result.score - 1.0) / (7.9 - 1.0)) * 9 + 1;
-
   return (
     <div className="brainlet-box p-6 bg-white">
       <h2 className="font-brainlet text-2xl mb-4 text-white" style={{ 
@@ -37,12 +34,12 @@ export default function ScanResultsCard({ result }: ScanResultsCardProps) {
         <div>
           <div className="flex justify-between mb-1">
             <span className="font-bold">PSL SCORE</span>
-            <span>{result.score.toFixed(2)} / 7.9</span>
+            <span>{result.score.toFixed(2)} / 9.9</span>
           </div>
           <div className="h-6 bg-black border-3 border-black relative">
             <div 
               className="h-full bg-brainlet-blue transition-all duration-500"
-              style={{ width: `${Math.min(100, (result.score / 7.9) * 100)}%` }}
+              style={{ width: `${Math.min(100, (result.score / 9.9) * 100)}%` }}
             />
             <div className="absolute inset-0 flex items-center justify-center text-xs font-bold">
               {result.category.toUpperCase()}
